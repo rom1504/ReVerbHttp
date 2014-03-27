@@ -15,26 +15,19 @@ import com.sun.net.httpserver.HttpServer;
 
 
 
+
+
+
 /* For representing a sentence that is annotated with pos tags and np chunks.*/
 import edu.washington.cs.knowitall.nlp.ChunkedSentence;
-import edu.washington.cs.knowitall.nlp.ChunkedSentenceReader;
 /* String -> ChunkedSentence */
 import edu.washington.cs.knowitall.nlp.OpenNlpSentenceChunker;
 
 /* The class that is responsible for extraction. */
 import edu.washington.cs.knowitall.extractor.ReVerbExtractor;
-
-/* The class that is responsible for assigning a confidence score to an
- * extraction.
- */
-import edu.washington.cs.knowitall.extractor.conf.ConfidenceFunction;
 import edu.washington.cs.knowitall.extractor.conf.ConfidenceFunctionException;
-import edu.washington.cs.knowitall.extractor.conf.ReVerbOpenNlpConfFunction;
-
 /* A class for holding a (arg1, rel, arg2) triple. */
 import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction;
-import edu.washington.cs.knowitall.util.DefaultObjects;
-
 import edu.washington.cs.knowitall.normalization.NormalizedBinaryExtraction;
 import edu.washington.cs.knowitall.normalization.BinaryExtractionNormalizer;
 
@@ -42,11 +35,13 @@ import edu.washington.cs.knowitall.normalization.BinaryExtractionNormalizer;
 public class ReVerbHttp {
 
     public static void main(String[] args) throws Exception {
+        System.out.println("Initializing...");
         HttpServer server = HttpServer.create(new InetSocketAddress(8002), 0);
         HttpContext context=server.createContext("/", new MyHandler());
         context.getFilters().add(new ParameterFilter());
         server.setExecutor(null); // creates a default executor
         server.start();
+        System.out.println("Running");
     }
 
     static class MyHandler implements HttpHandler {
@@ -60,7 +55,8 @@ public class ReVerbHttp {
     	}
     	
         public void handle(HttpExchange t) throws IOException {
-        	Map params = (Map)t.getAttribute("parameters");
+        	@SuppressWarnings("unchecked")
+			Map<String, Object> params = (Map<String, Object>)t.getAttribute("parameters");
             String response = reverb(params.get("text").toString());
             t.sendResponseHeaders(200, response.length());
             OutputStream os = t.getResponseBody();

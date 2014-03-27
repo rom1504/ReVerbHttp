@@ -2,6 +2,7 @@ package main;
 
 import com.sun.net.httpserver.Filter;
 import com.sun.net.httpserver.HttpExchange;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -31,7 +32,7 @@ public class ParameterFilter extends Filter {
     private void parseGetParameters(HttpExchange exchange)
         throws UnsupportedEncodingException {
 
-        Map parameters = new HashMap();
+        Map<String, Object> parameters = new HashMap<String, Object>();
         URI requestedUri = exchange.getRequestURI();
         String query = requestedUri.getRawQuery();
         parseQuery(query, parameters);
@@ -43,8 +44,8 @@ public class ParameterFilter extends Filter {
 
         if ("post".equalsIgnoreCase(exchange.getRequestMethod())) {
             @SuppressWarnings("unchecked")
-            Map parameters =
-                (Map)exchange.getAttribute("parameters");
+            Map<String, Object> parameters =
+                (Map<String, Object>)exchange.getAttribute("parameters");
             InputStreamReader isr =
                 new InputStreamReader(exchange.getRequestBody(),"utf-8");
             BufferedReader br = new BufferedReader(isr);
@@ -54,7 +55,7 @@ public class ParameterFilter extends Filter {
     }
 
      @SuppressWarnings("unchecked")
-     private void parseQuery(String query, Map parameters)
+     private void parseQuery(String query, Map<String, Object> parameters)
          throws UnsupportedEncodingException {
 
          if (query != null) {
@@ -78,10 +79,10 @@ public class ParameterFilter extends Filter {
                  if (parameters.containsKey(key)) {
                      Object obj = parameters.get(key);
                      if(obj instanceof List) {
-                         List values = (List)obj;
+                         List<String> values = (List<String>)obj;
                          values.add(value);
                      } else if(obj instanceof String) {
-                         List values = new ArrayList();
+                         List<String> values = new ArrayList<String>();
                          values.add((String)obj);
                          values.add(value);
                          parameters.put(key, values);
