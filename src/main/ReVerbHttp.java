@@ -5,15 +5,19 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
+import com.google.common.base.Joiner;
 import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
 
+
+
+
 /* For representing a sentence that is annotated with pos tags and np chunks.*/
 import edu.washington.cs.knowitall.nlp.ChunkedSentence;
-
+import edu.washington.cs.knowitall.nlp.ChunkedSentenceReader;
 /* String -> ChunkedSentence */
 import edu.washington.cs.knowitall.nlp.OpenNlpSentenceChunker;
 
@@ -29,6 +33,10 @@ import edu.washington.cs.knowitall.extractor.conf.ReVerbOpenNlpConfFunction;
 
 /* A class for holding a (arg1, rel, arg2) triple. */
 import edu.washington.cs.knowitall.nlp.extraction.ChunkedBinaryExtraction;
+import edu.washington.cs.knowitall.util.DefaultObjects;
+
+import edu.washington.cs.knowitall.normalization.NormalizedBinaryExtraction;
+import edu.washington.cs.knowitall.normalization.BinaryExtractionNormalizer;
 
 
 public class ReVerbHttp {
@@ -47,9 +55,8 @@ public class ReVerbHttp {
     	{
     		super();
             chunker = new OpenNlpSentenceChunker();
-            reverb = new ReVerbExtractor(0,true,true,true);
-            confFunc = new ReVerbOpenNlpConfFunction();
-
+            extractor = new ReVerbExtractor(0,true,true,true);
+            normalizer = new BinaryExtractionNormalizer();
     	}
     	
         public void handle(HttpExchange t) throws IOException {
@@ -63,19 +70,29 @@ public class ReVerbHttp {
         
         private String reverb(String sentence) throws IOException
         {
+        	
+        	
         	String sentStr = sentence;
 
             ChunkedSentence sent = chunker.chunkSentence(sentStr);
 
            String ret="";
-            for (ChunkedBinaryExtraction extr : reverb.extract(sent)) {
-                ret+=extr.getArgument1()+"\t"+extr.getRelation()+"\t"+extr.getArgument2()+"\n";
+           for (ChunkedBinaryExtraction extr : extractor.extract(sent))
+           {
+                NormalizedBinaryExtraction extrNorm = normalizer
+                        .normalize(extr);
+                String arg1Norm = extrNorm.getArgument1Norm().toString();
+                String relNorm = extrNorm.getRelationNorm().toString();
+                String arg2Norm = extrNorm.getArgument2Norm().toString();
+                ret+=Joiner.on("\t").join(extr.getArgument1(),extr.getRelation(),
+                		extr.getArgument2(),arg1Norm,relNorm,arg2Norm)+"\n";
             }
             return ret;
+            
         }
         private OpenNlpSentenceChunker chunker;
-        private ReVerbExtractor reverb;
-        private ConfidenceFunction confFunc;
+        private ReVerbExtractor extractor;
+        private BinaryExtractionNormalizer normalizer;
     }
 
 }
