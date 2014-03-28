@@ -1,6 +1,7 @@
 package main;
 
 import java.io.IOException;
+import edu.washington.cs.knowitall.commonlib.Range;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -80,8 +81,17 @@ public class ReVerbHttp {
                 String arg1Norm = extrNorm.getArgument1Norm().toString();
                 String relNorm = extrNorm.getRelationNorm().toString();
                 String arg2Norm = extrNorm.getArgument2Norm().toString();
+                Range arg1Range = extr.getArgument1().getRange();
+                Range relRange = extr.getRelation().getRange();
+                Range arg2Range = extr.getArgument2().getRange();
+                String a1s = String.valueOf(arg1Range.getStart());
+                String a1e = String.valueOf(arg1Range.getEnd());
+                String rs = String.valueOf(relRange.getStart());
+                String re = String.valueOf(relRange.getEnd());
+                String a2s = String.valueOf(arg2Range.getStart());
+                String a2e = String.valueOf(arg2Range.getEnd());
                 ret+=Joiner.on("\t").join(extr.getArgument1(),extr.getRelation(),
-                		extr.getArgument2(),arg1Norm,relNorm,arg2Norm)+"\n";
+                		extr.getArgument2(),arg1Norm,relNorm,arg2Norm, a1s, a1e, rs, re, a2s, a2e)+"\n";
             }
             return ret;
             
