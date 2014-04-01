@@ -7,5 +7,8 @@ It works well but takes some time to start (about 10 seconds), so this is a simp
 ## Building
 Open the project in eclipse then add reverb library as an external jar. Then you can compile and start the program
 
+## Binary
+You can also download the .jar here : http://download.rom1504.fr/ReVerbHttp/ReVerbHttp.jar
+
 ## Example
 First start the program, then you can query ReVerb with : curl http://localhost:8002/ --data-urlencode "text=Who is the daughter of Bill Clinton married to?"
